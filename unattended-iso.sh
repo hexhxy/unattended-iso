@@ -50,7 +50,7 @@ if [[ $OS_FOUND != "true" ]]; then
     exit 1
 fi
 
-mkdir -p $CURRENT_DIR/build_iso
+mkdir -p $CURRENT_DIR/build_iso $CURRENT_DIR/output
 
 if [[ $OS_VERSION == "14.04.5" ]]; then
     ISO_URL=http://releases.ubuntu.com/14.04/ubuntu-14.04.5-server-amd64.iso
@@ -86,7 +86,6 @@ sed -i "/label install/ilabel autoinstall\n\
   append file=/cdrom/preseed/ubuntu-server.seed vga=788 initrd=/install/initrd.gz auto=true priority=high preseed/file=/cdrom/preseed/auto.seed preseed/file/checksum=$seed_md5 --" $CURRENT_DIR/build_iso/new_iso/isolinux/txt.cfg
 
 pushd ./build_iso/new_iso
-mkisofs -D -r -V "AUTO_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $CURRENT_DIR/ubuntu-$OS_VERSION-server-amd64-unattended.iso .
+mkisofs -D -r -V "AUTO_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $CURRENT_DIR/output/ubuntu-$OS_VERSION-server-amd64-unattended.iso .
 popd
-
 
