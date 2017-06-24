@@ -63,29 +63,28 @@ wget -nc $ISO_URL -O $CURRENT_DIR/build_iso/ubuntu-$OS_VERSION-server-amd64.iso 
 mkdir -p $CURRENT_DIR/build_iso/org_iso
 
 if grep -qs $CURRENT_DIR/build_iso/org_iso /proc/mounts; then
-    umount $CURRENT_DIR/build_iso/org_iso
+    sudo umount $CURRENT_DIR/build_iso/org_iso
 fi
 
-mount -o loop $CURRENT_DIR/build_iso/ubuntu-$OS_VERSION-server-amd64.iso $CURRENT_DIR/build_iso/org_iso
+sudo mount -o loop $CURRENT_DIR/build_iso/ubuntu-$OS_VERSION-server-amd64.iso $CURRENT_DIR/build_iso/org_iso
 
 if [ -d $CURRENT_DIR/build_iso/new_iso ]; then
-    rm -rf $CURRENT_DIR/build_iso/new_iso
+    sudo rm -rf $CURRENT_DIR/build_iso/new_iso
 fi
 
-cp -rT $CURRENT_DIR/build_iso/org_iso $CURRENT_DIR/build_iso/new_iso
-cp -rT $CURRENT_DIR/auto.seed $CURRENT_DIR/build_iso/new_iso/preseed/auto.seed
+sudo cp -rT $CURRENT_DIR/build_iso/org_iso $CURRENT_DIR/build_iso/new_iso
+sudo cp -rT $CURRENT_DIR/auto.seed $CURRENT_DIR/build_iso/new_iso/preseed/auto.seed
 
-echo en > $CURRENT_DIR/build_iso/new_iso/isolinux/lang
-sed -i -r 's/timeout\s+[0-9]+/timeout 1/g' $CURRENT_DIR/build_iso/new_iso/isolinux/isolinux.cfg
+sudo sed -i -r 's/timeout\s+[0-9]+/timeout 1/g' $CURRENT_DIR/build_iso/new_iso/isolinux/isolinux.cfg
 
 seed_md5=`md5sum $CURRENT_DIR/build_iso/new_iso/preseed/auto.seed | awk '{print $1}'`
 
-sed -i "/label install/ilabel autoinstall\n\
+sudo sed -i "/label install/ilabel autoinstall\n\
   menu label ^Autoinstall Ubuntu Server\n\
   kernel /install/vmlinuz\n\
   append file=/cdrom/preseed/ubuntu-server.seed vga=788 initrd=/install/initrd.gz auto=true priority=high preseed/file=/cdrom/preseed/auto.seed preseed/file/checksum=$seed_md5 --" $CURRENT_DIR/build_iso/new_iso/isolinux/txt.cfg
 
 pushd ./build_iso/new_iso
-mkisofs -D -r -V "AUTO_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $CURRENT_DIR/output/ubuntu-$OS_VERSION-server-amd64-unattended.iso .
+sudo mkisofs -D -r -V "AUTO_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $CURRENT_DIR/output/ubuntu-$OS_VERSION-server-amd64-unattended.iso .
 popd
 
